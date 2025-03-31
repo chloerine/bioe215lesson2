@@ -122,4 +122,22 @@ ggplot(data = caught_day,mapping = aes(x = date, y = n, colour = sex)) + geom_li
 sp_by_plot <- surveys %>% 
   filter(!is.na(weight)) %>% 
   group_by(species_id,plot_id) %>% 
-  summarise(mean_weight = mean(weight)) 
+  summarise(mean_weight = mean(weight)) %>% 
+  arrange(species_id,plot_id)
+
+sp_by_plot_wide <- sp_by_plot %>% 
+  pivot_wider(names_from = plot_id,
+              values_from = mean_weight)
+
+sp_by_plot %>% 
+  filter(species_id == "BA" & plot_id == 1)
+
+sp_by_plot_wide %>% 
+  pivot_longer(cols = -species_id, names_to = "PLOT", values_to = "MEAN_WT") %>% 
+  filter(!is.na(MEAN_WT))
+
+surveys_sp<-sp_by_plot %>% 
+  pivot_wider(names_from = plot_id, values_from = mean_weight,
+              names_prefix = "plot_")
+
+write_csv(surveys_sp, "data/cleaned/surveys_meanweight_plot.csv")
